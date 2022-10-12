@@ -1,12 +1,12 @@
 const express = require("express")
 const Moralis = require("moralis").default
 const { EvmChain } = require("@moralisweb3/evm-utils")
+const address = require('./config')
 
 const app = express()
 const port = 3000
 
 const MORALIS_API_KEY = "Litot1VeP1MVW8qGOZmPGMUcRQvCf4P0zg9JwhxXFSpAVzRMZzgZeQnW5JVP5zYX"
-const address = "0xA145ac099E3d2e9781C9c848249E2e6b256b030D"
 const chain = EvmChain.ETHEREUM
 
 async function getDemoData() {
