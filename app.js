@@ -2,6 +2,7 @@ const express = require("express")
 const Moralis = require("moralis").default
 const { EvmChain } = require("@moralisweb3/evm-utils")
 const address = require('./config')
+const fs = require('fs/promises');
 
 const app = express()
 const port = 3000
@@ -24,7 +25,7 @@ async function getDemoData () {
         const tokenBalances = await Moralis.EvmApi.token.getWalletTokenBalances({
           address,
           chain,
-          limit: 10,
+ //       limit: 10,
         })
       
         // Format the balances to a readable output with the .display() method
@@ -34,26 +35,36 @@ async function getDemoData () {
         
     }
 
-const interval = ms => {
-    return new Promise(setInterval(getDemoData(), ms))
-}
+// const interval = ms => {
+//    return new Promise(setInterval(getDemoData(), ms))
+// }
 
 app.get("/demo",   (req, res) => {
-        async function printData () {
-            try {
-                // Get and return the crypto data
-               await interval();
- //               const data =await getDemoData()
-                res.status(200)
-                res.json(data)
-              } catch (error) {
-                // Handle errors
-                console.error(error)
-                res.status(500)
-                res.json({ error: error.message })
-              }
-        } 
-       setInterval(printData, 3000);
+//         async function printData () {
+//             try {
+//                 // Get and return the crypto data
+//                const data = await getDemoData();
+//  //               const data =await getDemoData()
+//                 res.status(200)
+//                 res.json(data)
+//               } catch (error) {
+//                 // Handle errors
+//                 console.error(error)
+//                 res.status(500)
+//                 res.json({ error: error.message })
+//               }
+//         } 
+//         printData();
+  //     setInterval(printData, 3000);
+  const createLog = async () => {
+    const balance = await getDemoData();
+    console.log(balance);
+ //   const time = logTime();
+ const objectParsed = JSON.stringify(balance);
+    await fs.appendFile('readme.log',  objectParsed + '\n');
+ //   res.end( balance);
+  };
+  setInterval(createLog, 5000);
 })
 
 const startServer = async () => {
