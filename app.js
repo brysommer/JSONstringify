@@ -1,80 +1,72 @@
-const express = require("express")
-const Moralis = require("moralis").default
-const { EvmChain } = require("@moralisweb3/evm-utils")
-const address = require('./config')
+const express = require('express');
+const app = express();
+//cryptocurrencies API software
+const Moralis = require("moralis").default;
+//L:ibrary for working interval with promise propertly
+const interval = require('interval-promise');
 const fs = require('fs/promises');
+const format = require('node.date-time');
+const { EvmChain } = require("@moralisweb3/evm-utils");
+//wallet address
+const address = require('./config'); 
+const port = 3000;
 
-const app = express()
-const port = 3000
+const MORALIS_API_KEY = "Litot1VeP1MVW8qGOZmPGMUcRQvCf4P0zg9JwhxXFSpAVzRMZzgZeQnW5JVP5zYX";
+const chain = EvmChain.ETHEREUM;
 
-const MORALIS_API_KEY = "Litot1VeP1MVW8qGOZmPGMUcRQvCf4P0zg9JwhxXFSpAVzRMZzgZeQnW5JVP5zYX"
-const chain = EvmChain.ETHEREUM
-
-async function getDemoData () {
-        console.log('getdemo started');
-        // Get native balance
-        const nativeBalance = await Moralis.EvmApi.balance.getNativeBalance({
-          address,
-          chain,
-        })
-      
-        // Format the native balance formatted in ether via the .ether getter
-        const native = nativeBalance.result.balance.ether
-      
-        // Get token balances
-        const tokenBalances = await Moralis.EvmApi.token.getWalletTokenBalances({
-          address,
-          chain,
- //       limit: 10,
-        })
-      
-        // Format the balances to a readable output with the .display() method
-        const tokens = tokenBalances.result.map((token) => token.display())
-        console.log('getdemo finished');
-        return { native, tokens }
-        
-    }
-
-// const interval = ms => {
-//    return new Promise(setInterval(getDemoData(), ms))
-// }
-
-app.get("/demo",   (req, res) => {
-//         async function printData () {
-//             try {
-//                 // Get and return the crypto data
-//                const data = await getDemoData();
-//  //               const data =await getDemoData()
-//                 res.status(200)
-//                 res.json(data)
-//               } catch (error) {
-//                 // Handle errors
-//                 console.error(error)
-//                 res.status(500)
-//                 res.json({ error: error.message })
-//               }
-//         } 
-//         printData();
-  //     setInterval(printData, 3000);
-  const createLog = async () => {
-    const balance = await getDemoData();
-    console.log(balance);
- //   const time = logTime();
- const objectParsed = JSON.stringify(balance);
-    await fs.appendFile('readme.log',  objectParsed + '\n');
- //   res.end( balance);
-  };
-  setInterval(createLog, 5000);
-})
-
-const startServer = async () => {
+//connect Moralis server
+const startMoralis = async () => {
   await Moralis.start({
     apiKey: MORALIS_API_KEY,
-  })
+  });
+};
+startMoralis();
 
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-  })
-}
+//get wallet info
+async function getDemoData () {
+  console.log('getdemo started');
+  // Get native balance
+  const nativeBalance = await Moralis.EvmApi.balance.getNativeBalance({
+    address,
+    chain,
+  });
 
-startServer()
+  // Format the native balance formatted in ether via the .ether getter
+  const native = nativeBalance.result.balance.ether;
+
+  // Get token balances
+  const tokenBalances = await Moralis.EvmApi.token.getWalletTokenBalances({
+    address,
+    chain,
+  });
+
+  // Format the balances to a readable output with the .display() method
+  const tokens = tokenBalances.result.map((token) => token.display());
+
+  // Get tokens quantity
+  const tokensQuantity = tokens.length;
+
+  console.log('getdemo finished');
+
+  return { native, tokensQuantity, tokens };
+};
+
+app.get('/demo', (req, res) => {
+
+//get time loged   
+  let logTime = () => {
+    return new Date().format("Y-M-d H:M:S")+' ';
+  };
+//app view  
+  interval(async () => {
+    const objectParsed = await getDemoData();
+    let time = logTime();
+    const balance = JSON.stringify(objectParsed);
+    await fs.writeFile('readme.log', time + balance);
+    res.end(time + balance);
+}, 60000, {stopOnError: false});
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+});

@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.1",
+    "interval-promise": "^1.4.0",
     "moralis": "^2.6.5",
+    "node.date-time": "^1.2.2",
     "web3": "^1.8.0"
   }
 }
